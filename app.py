@@ -28,7 +28,6 @@ st.set_page_config(page_title="🚖 AI Surge Pricing", layout="centered")
 st.markdown("<h1 style='text-align: center; color: #FF4500;'>🚖 AI-Powered Surge Pricing</h1>", unsafe_allow_html=True)
 
 # 📌 Sidebar
-st.sidebar.image("https://media.giphy.com/media/l0HlOvJ7yaacpuSas/giphy.gif", width=250)
 st.sidebar.markdown("### 🎛 Configure Ride Details")
 
 # 🚗 Ride Settings

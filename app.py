@@ -93,9 +93,3 @@ if st.button("⚡ Predict Surge Price"):
                 🌦 **Weather:** {weather}  
                 🎉 **Event Nearby:** {events}  
                 """, unsafe_allow_html=True
-            )
-
-        except Exception as e:
-            st.error(f"❌ Prediction Error: {e}")
-            st.write("🔍 Possible causes:")
-            st.write("1. Model input shape

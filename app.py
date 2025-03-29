@@ -51,44 +51,51 @@ if st.button("⚡ Predict Surge Price"):
         weather_map = {"Clear": 1, "Rain": 2, "Storm": 3}
         events_map = {"No": 0, "Yes": 1}
 
-        # Predict Demand & Surge Pricing
-        features = np.array([[hour, traffic, weather_map[weather], events_map[events], distance_km]])
-        predicted_demand = demand_model.predict(features)[0]
-        surge_multiplier = pricing_model.get_price_multiplier(hour, traffic, weather_map[weather], events_map[events])
+        # Ensure input is in correct shape
+        features = np.array([[hour, traffic, weather_map[weather], events_map[events], distance_km]], dtype=np.float32)
+        
+        # Debug: Show input shape
+        st.write("Feature Input Shape:", features.shape)
 
-        # 🚖 Base fare per km
-        base_fare_per_km = 1.5
-        final_fare = round(distance_km * base_fare_per_km * surge_multiplier, 2)
+        try:
+            # Predict Demand & Surge Pricing
+            predicted_demand = demand_model.predict(features)[0]
+            surge_multiplier = pricing_model.get_price_multiplier(hour, traffic, weather_map[weather], events_map[events])
 
-        # 🔥 Display Results
-        st.success("✅ Prediction Completed!")
-        st.markdown("### 📊 Prediction Results")
-        col1, col2, col3 = st.columns(3)
-        col1.metric("🔮 Predicted Demand", int(predicted_demand))
-        col2.metric("🔥 Surge Multiplier", round(surge_multiplier, 2))
-        col3.metric("💰 Final Fare ($)", final_fare)
+            # 🚖 Base fare per km
+            base_fare_per_km = 1.5
+            final_fare = round(distance_km * base_fare_per_km * surge_multiplier, 2)
 
-        # 🚦 Surge Alerts
-        if surge_multiplier > 1.5:
-            st.warning("⚠️ HIGH DEMAND! Prices are surging 🚀")
-        elif surge_multiplier > 1.2:
-            st.info("🔄 Moderate surge pricing applied.")
-        else:
-            st.success("✅ Normal pricing. No surge!")
+            # 🔥 Display Results
+            st.success("✅ Prediction Completed!")
+            st.markdown("### 📊 Prediction Results")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("🔮 Predicted Demand", int(predicted_demand))
+            col2.metric("🔥 Surge Multiplier", round(surge_multiplier, 2))
+            col3.metric("💰 Final Fare ($)", final_fare)
 
-        # 🏁 Show Ride Summary
-        st.markdown("---")
-        st.markdown(
-            f"""
-            **Ride Details:**  
-            🚗 **Distance:** {distance_km} km  
-            ⏰ **Hour:** {hour}  
-            🚦 **Traffic Level:** {traffic}  
-            🌦 **Weather:** {weather}  
-            🎉 **Event Nearby:** {events}  
-            """, unsafe_allow_html=True
-        )
+            # 🚦 Surge Alerts
+            if surge_multiplier > 1.5:
+                st.warning("⚠️ HIGH DEMAND! Prices are surging 🚀")
+            elif surge_multiplier > 1.2:
+                st.info("🔄 Moderate surge pricing applied.")
+            else:
+                st.success("✅ Normal pricing. No surge!")
 
-st.markdown("---")
-st.caption("🔍 Powered by AI | XGBoost + Reinforcement Learning 🤖")
-st.caption(Developed By Ujan Pradhan)
+            # 🏁 Show Ride Summary
+            st.markdown("---")
+            st.markdown(
+                f"""
+                **Ride Details:**  
+                🚗 **Distance:** {distance_km} km  
+                ⏰ **Hour:** {hour}  
+                🚦 **Traffic Level:** {traffic}  
+                🌦 **Weather:** {weather}  
+                🎉 **Event Nearby:** {events}  
+                """, unsafe_allow_html=True
+            )
+
+        except Exception as e:
+            st.error(f"❌ Prediction Error: {e}")
+            st.write("🔍 Possible causes:")
+            st.write("1. Model input shape

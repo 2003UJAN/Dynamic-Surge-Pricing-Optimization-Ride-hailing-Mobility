@@ -2,15 +2,25 @@ import streamlit as st
 import joblib
 import numpy as np
 import time
+import os
 
-# Load models
-demand_model = joblib.load("demand_model.pkl")
-pricing_model = joblib.load("q_learning_model.pkl")
+# ✅ Check if model files exist
+if not os.path.exists("demand_model.pkl") or not os.path.exists("q_learning_model.pkl"):
+    st.error("❌ Model files not found! Ensure 'demand_model.pkl' and 'q_learning_model.pkl' exist.")
+    st.stop()
 
-# Set Streamlit page config
-st.set_page_config(page_title="🚖 Surge Pricing AI", layout="centered")
+# ✅ Load models with error handling
+try:
+    demand_model = joblib.load("demand_model.pkl")
+    pricing_model = joblib.load("q_learning_model.pkl")
+except Exception as e:
+    st.error(f"❌ Model loading error: {e}")
+    st.stop()
 
-# Cool Title with Emojis
+# 🌟 Set Streamlit page config
+st.set_page_config(page_title="🚖 AI Surge Pricing", layout="centered")
+
+# 🚀 Cool Title with Emojis
 st.markdown(
     """
     <h1 style='text-align: center; color: #FF4500;'>🚖 AI-Powered Surge Pricing</h1>
@@ -19,9 +29,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Sidebar with animated icon
+# 📌 Sidebar with animated icon
 st.sidebar.image("https://media.giphy.com/media/l0HlOvJ7yaacpuSas/giphy.gif", width=250)
-st.sidebar.markdown("### Configure Ride Details 🚗")
+st.sidebar.markdown("### 🎛 Configure Ride Details")
 
 # 🚗 Ride Settings
 hour = st.sidebar.slider("⏰ Hour of the day", 0, 23, 12)
@@ -48,18 +58,18 @@ if st.button("⚡ Predict Surge Price"):
     with st.spinner("Analyzing demand & surge pricing... ⏳"):
         time.sleep(2)
 
-        # Encode categorical inputs
+        # ✅ Encode categorical inputs
         weather_map = {"Clear": 1, "Rain": 2, "Storm": 3}
         events_map = {"No": 0, "Yes": 1}
 
-        # Ensure input is in correct shape
+        # ✅ Ensure input is in correct shape
         features = np.array([[hour, traffic, weather_map[weather], events_map[events], distance_km]], dtype=np.float32)
         
-        # Debug: Show input shape
-        st.write("Feature Input Shape:", features.shape)
+        # 📌 Debugging - Show input shape
+        st.write("🔍 Feature Input Shape:", features.shape)
 
         try:
-            # Predict Demand & Surge Pricing
+            # 🎯 Predict Demand & Surge Pricing
             predicted_demand = demand_model.predict(features)[0]
             surge_multiplier = pricing_model.get_price_multiplier(hour, traffic, weather_map[weather], events_map[events])
 
@@ -87,7 +97,7 @@ if st.button("⚡ Predict Surge Price"):
             st.markdown("---")
             st.markdown(
                 f"""
-                **Ride Details:**  
+                **📍 Ride Details:**  
                 🚗 **Distance:** {distance_km} km  
                 ⏰ **Hour:** {hour}  
                 🚦 **Traffic Level:** {traffic}  

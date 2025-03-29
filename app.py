@@ -2,7 +2,6 @@ import streamlit as st
 import joblib
 import numpy as np
 
-# ✅ Define the Q-learning class before loading the model
 class QLearningSurgePricing:
     def __init__(self):
         self.q_table = np.zeros((24, 10, 4, 2, 5))  # (Hour, Traffic, Weather, Events, Price Levels)
@@ -14,17 +13,14 @@ class QLearningSurgePricing:
         action = np.argmax(self.q_table[state])
         return 1 + (action * 0.2)  # Surge multiplier (1.0 to 1.8)
 
-# ✅ Now load the model
 try:
     pricing_model = joblib.load("q_learning_model.pkl")
 except Exception as e:
     st.error(f"Error loading Q-learning model: {e}")
     pricing_model = QLearningSurgePricing()  # Fallback to a new instance
 
-# ✅ Load the demand prediction model
 demand_model = joblib.load("demand_model.pkl")
 
-# Streamlit UI
 st.title("🚕 Dynamic Surge Pricing Optimization")
 
 hour = st.slider("⏰ Hour of the day", 0, 23, 12)

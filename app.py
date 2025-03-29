@@ -15,7 +15,8 @@ st.markdown(
     """
     <h1 style='text-align: center; color: #FF4500;'>🚖 AI-Powered Surge Pricing</h1>
     <h4 style='text-align: center; color: #2E8B57;'>Smart fare calculation based on demand, weather, and traffic.</h4>
-    """, unsafe_allow_html=True
+    """, 
+    unsafe_allow_html=True
 )
 
 # Sidebar with animated icon
@@ -92,4 +93,15 @@ if st.button("⚡ Predict Surge Price"):
                 🚦 **Traffic Level:** {traffic}  
                 🌦 **Weather:** {weather}  
                 🎉 **Event Nearby:** {events}  
-                """, unsafe_allow_html=True
+                """, 
+                unsafe_allow_html=True
+            )
+
+        except Exception as e:
+            st.error(f"❌ Prediction Error: {e}")
+            st.write("🔍 Possible causes:")
+            st.write("1. Model input shape mismatch (Check training feature count).")
+            st.write("2. Corrupt model file (Try retraining).")
+
+st.markdown("---")
+st.caption("🔍 Powered by AI | XGBoost + Reinforcement Learning 🤖")

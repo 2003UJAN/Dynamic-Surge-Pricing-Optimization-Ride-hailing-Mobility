@@ -1,8 +1,12 @@
 import streamlit as st
 import joblib
 import numpy as np
-import time
 import os
+import time
+from q_learning import QLearningSurgePricing  # ✅ Import the custom class
+
+# ✅ Register the class in globals() to fix loading issue
+globals()['QLearningSurgePricing'] = QLearningSurgePricing  
 
 # ✅ Check if model files exist
 if not os.path.exists("demand_model.pkl") or not os.path.exists("q_learning_model.pkl"):

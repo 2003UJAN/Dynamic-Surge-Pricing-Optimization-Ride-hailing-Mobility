@@ -3,12 +3,12 @@ import joblib
 import numpy as np
 import os
 import time
-from q_learning import QLearningSurgePricing  # ✅ Import the custom class
 
-# ✅ Register the class in globals() to fix loading issue
+# ✅ Register the class in globals() to fix model loading issue
+from q_learning import QLearningSurgePricing
 globals()['QLearningSurgePricing'] = QLearningSurgePricing  
 
-# ✅ Check if model files exist
+# ✅ Ensure model files exist
 if not os.path.exists("demand_model.pkl") or not os.path.exists("q_learning_model.pkl"):
     st.error("❌ Model files not found! Ensure 'demand_model.pkl' and 'q_learning_model.pkl' exist.")
     st.stop()
@@ -24,16 +24,10 @@ except Exception as e:
 # 🌟 Set Streamlit page config
 st.set_page_config(page_title="🚖 AI Surge Pricing", layout="centered")
 
-# 🚀 Cool Title with Emojis
-st.markdown(
-    """
-    <h1 style='text-align: center; color: #FF4500;'>🚖 AI-Powered Surge Pricing</h1>
-    <h4 style='text-align: center; color: #2E8B57;'>Smart fare calculation based on demand, weather, and traffic.</h4>
-    """, 
-    unsafe_allow_html=True
-)
+# 🚀 Title
+st.markdown("<h1 style='text-align: center; color: #FF4500;'>🚖 AI-Powered Surge Pricing</h1>", unsafe_allow_html=True)
 
-# 📌 Sidebar with animated icon
+# 📌 Sidebar
 st.sidebar.image("https://media.giphy.com/media/l0HlOvJ7yaacpuSas/giphy.gif", width=250)
 st.sidebar.markdown("### 🎛 Configure Ride Details")
 
@@ -42,38 +36,26 @@ hour = st.sidebar.slider("⏰ Hour of the day", 0, 23, 12)
 traffic = st.sidebar.slider("🚦 Traffic Level (1-10)", 1, 10, 5)
 
 # 🌦 Weather & Event Inputs
-col1, col2 = st.columns(2)
-with col1:
-    weather = st.radio("🌦 Weather", ["Clear", "Rain", "Storm"], horizontal=True)
-with col2:
-    events = st.radio("🎉 Nearby Event?", ["No", "Yes"], horizontal=True)
+weather = st.sidebar.radio("🌦 Weather", ["Clear", "Rain", "Storm"], horizontal=True)
+events = st.sidebar.radio("🎉 Nearby Event?", ["No", "Yes"], horizontal=True)
 
 # 📏 Distance Input
 distance_km = st.slider("📏 Trip Distance (km)", 2.0, 30.0, 10.0)
 
-# 🎨 Styled Button
-st.markdown(
-    "<style>div.stButton > button {background-color: #FF4500; color: white; border-radius: 10px;}</style>",
-    unsafe_allow_html=True
-)
-
-# 🎯 Predict Button with Animation
+# 🎯 Predict Button
 if st.button("⚡ Predict Surge Price"):
-    with st.spinner("Analyzing demand & surge pricing... ⏳"):
+    with st.spinner("Analyzing demand & pricing... ⏳"):
         time.sleep(2)
 
         # ✅ Encode categorical inputs
         weather_map = {"Clear": 1, "Rain": 2, "Storm": 3}
         events_map = {"No": 0, "Yes": 1}
 
-        # ✅ Ensure input is in correct shape
+        # ✅ Model Input
         features = np.array([[hour, traffic, weather_map[weather], events_map[events], distance_km]], dtype=np.float32)
-        
-        # 📌 Debugging - Show input shape
-        st.write("🔍 Feature Input Shape:", features.shape)
 
         try:
-            # 🎯 Predict Demand & Surge Pricing
+            # 🎯 Predict
             predicted_demand = demand_model.predict(features)[0]
             surge_multiplier = pricing_model.get_price_multiplier(hour, traffic, weather_map[weather], events_map[events])
 
@@ -83,39 +65,9 @@ if st.button("⚡ Predict Surge Price"):
 
             # 🔥 Display Results
             st.success("✅ Prediction Completed!")
-            st.markdown("### 📊 Prediction Results")
-            col1, col2, col3 = st.columns(3)
-            col1.metric("🔮 Predicted Demand", int(predicted_demand))
-            col2.metric("🔥 Surge Multiplier", round(surge_multiplier, 2))
-            col3.metric("💰 Final Fare ($)", final_fare)
-
-            # 🚦 Surge Alerts
-            if surge_multiplier > 1.5:
-                st.warning("⚠️ HIGH DEMAND! Prices are surging 🚀")
-            elif surge_multiplier > 1.2:
-                st.info("🔄 Moderate surge pricing applied.")
-            else:
-                st.success("✅ Normal pricing. No surge!")
-
-            # 🏁 Show Ride Summary
-            st.markdown("---")
-            st.markdown(
-                f"""
-                **📍 Ride Details:**  
-                🚗 **Distance:** {distance_km} km  
-                ⏰ **Hour:** {hour}  
-                🚦 **Traffic Level:** {traffic}  
-                🌦 **Weather:** {weather}  
-                🎉 **Event Nearby:** {events}  
-                """, 
-                unsafe_allow_html=True
-            )
+            st.metric("💰 Final Fare ($)", final_fare)
 
         except Exception as e:
             st.error(f"❌ Prediction Error: {e}")
-            st.write("🔍 Possible causes:")
-            st.write("1. Model input shape mismatch (Check training feature count).")
-            st.write("2. Corrupt model file (Try retraining).")
 
-st.markdown("---")
 st.caption("🔍 Powered by AI | XGBoost + Reinforcement Learning 🤖")
